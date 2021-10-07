@@ -56,7 +56,7 @@ function startLotto(args) {
     }
 
     let correctLotsLength = correctLots.length;
-    while (correctLotsLength < 5) {
+    while (correctLotsLength < 7) {
         correctLots = [];
         let drawnLotsTemp = drawLots(lottoNumbers);
         lots.forEach((lot) => {
