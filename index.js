@@ -6,7 +6,6 @@ let drawnLots = [];
 let numberofAttempts = 0;
 
 function init() {
-    tempArr = [...lottoNumbers];
     numberOfAttempts = 0;
 }
 
@@ -25,10 +24,15 @@ function validateArgs(args) {
 }
 
 function drawLots(arr) {
-    const len = arr.length;
-    for (let lot = 2; lot < len - 1; lot++) {
-        console.log(lot);
-    }
+    tempArr = [...arr];
+    let len = 0;
+    drawnLots = [];
+    do {
+        len = tempArr.length;
+        let randomNumber = Math.floor(Math.random() * len + 1);
+        drawnLots.push(...tempArr.splice(randomNumber, 1));
+    } while (drawnLots.length != 7);
+    return drawnLots;
 }
 
 function startLotto(args) {
@@ -43,6 +47,7 @@ function startLotto(args) {
     }
 
     drawnLots = drawLots(lottoNumbers);
+    console.log(drawnLots);
 }
 
 startLotto(process.argv);
