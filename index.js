@@ -9,3 +9,17 @@ function init() {
     tempArr = [...lottoNumbers];
     numberOfAttempts = 0;
 }
+
+function validateArgs(args) {
+    const len = args.length;
+    const validNumbers = [];
+    for (let i = 2; i < len; i++) {
+        let num = parseInt(args[i]);
+        if (isNaN(num) || num < 1 || num > 40 || validNumbers.includes(num))
+            throw `invalid argument: ${args[i]}`;
+
+        validNumbers.push(num);
+    }
+
+    return validNumbers;
+}
