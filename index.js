@@ -3,7 +3,8 @@
 let lottoNumbers = Array.from({ length: 40 }, (_, i) => i + 1); // should remain untouched
 let tempArr = []; // copy of lottoNumbers. this can be altered
 let drawnLots = [];
-let numberofAttempts = 0;
+let numberOfAttempts = 0;
+let highScore = 0;
 
 function init() {
     numberOfAttempts = 0;
@@ -12,6 +13,11 @@ function init() {
 function validateArgs(args) {
     const len = args.length;
     const validNumbers = [];
+
+    if (args[2] === "random") {
+        return drawLots(lottoNumbers);
+    }
+
     for (let i = 2; i < len; i++) {
         let num = parseInt(args[i]);
         if (isNaN(num) || num < 1 || num > 40 || validNumbers.includes(num))
@@ -37,7 +43,7 @@ function drawLots(arr) {
 
 function startLotto(args) {
     let lots = [];
-
+    let correctLots = [];
     init();
 
     try {
@@ -46,8 +52,16 @@ function startLotto(args) {
         console.log(e);
     }
 
-    drawnLots = drawLots(lottoNumbers);
-    console.log(drawnLots);
+    let correctLotsLength = correctLots.length;
+
+    while (correctLotsLength < 1) {
+        let drawnLotsTemp = drawLots(lottoNumbers);
+        lots.forEach((lot) => {
+            if (drawnLotsTemp.includes(lot)) correctLots.push(lot);
+        });
+        correctLotsLength = correctLots.length;
+    }
+    console.log(correctLots);
 }
 
 startLotto(process.argv);
