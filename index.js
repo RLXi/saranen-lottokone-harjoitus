@@ -55,7 +55,7 @@ function validateArgs(args) {
         let num = parseInt(arr[i]);
 
         if (isNaN(num) || num < 1 || num > 40 || validNumbers.includes(num))
-            throw `invalid argument: ${arr[i]}. Make sure all parameters are different numbers between 1 and 40, inclusive.`;
+            throw `invalid argument: ${arr[i]}. Make sure all arguments are different numbers between 1 and 40, inclusive.`;
         validNumbers.push(num);
     }
     return validNumbers;
