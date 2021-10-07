@@ -42,14 +42,15 @@ function drawLots(arr) {
 }
 
 function startLotto(args) {
+    init();
     let lots = [];
     let correctLots = [];
-    init();
 
     try {
         lots = validateArgs(args);
     } catch (e) {
         console.log(e);
+        return;
     }
 
     let correctLotsLength = correctLots.length;
