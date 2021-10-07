@@ -23,3 +23,26 @@ function validateArgs(args) {
 
     return validNumbers;
 }
+
+function drawLots(arr) {
+    const len = arr.length;
+    for (let lot = 2; lot < len - 1; lot++) {
+        console.log(lot);
+    }
+}
+
+function startLotto(args) {
+    let lots = [];
+
+    init();
+
+    try {
+        lots = validateArgs(args);
+    } catch (e) {
+        console.log(e);
+    }
+
+    drawnLots = drawLots(lottoNumbers);
+}
+
+startLotto(process.argv);
