@@ -45,7 +45,6 @@ function startLotto(args) {
     init();
     let lots = [];
     let correctLots = [];
-
     try {
         lots = validateArgs(args);
     } catch (e) {
@@ -54,15 +53,23 @@ function startLotto(args) {
     }
 
     let correctLotsLength = correctLots.length;
-
-    while (correctLotsLength < 1) {
+    while (correctLotsLength < 7) {
+        correctLots = [];
         let drawnLotsTemp = drawLots(lottoNumbers);
+        //console.log(drawnLotsTemp);
         lots.forEach((lot) => {
-            if (drawnLotsTemp.includes(lot)) correctLots.push(lot);
+            if (drawnLotsTemp.includes(lot) && !correctLots.includes(lot))
+                correctLots.push(lot);
         });
         correctLotsLength = correctLots.length;
+        numberOfAttempts++;
     }
-    console.log(correctLots);
+
+    console.log("my numbers:", lots);
+    console.log("drawn numbers:", drawnLots);
+    console.log("correct numbers:", correctLots);
+    console.log(`You got ${correctLotsLength} right!`);
+    console.log(`It only took ${numberOfAttempts} attempts!`);
 }
 
 startLotto(process.argv);
