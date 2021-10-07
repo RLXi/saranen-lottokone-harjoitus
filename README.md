@@ -1,0 +1,2 @@
+# saranen-lottokone-harjoitus
+Lottokone
