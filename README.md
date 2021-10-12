@@ -2,7 +2,7 @@
 
 Lottokone
 
-Install Node.js
+Install [nodejs](https://nodejs.org)
 
 If you want 7 random numbers, run
 
