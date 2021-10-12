@@ -1,49 +1,17 @@
 // Lotto
 console.time("runtime");
 
-let drawnNumbers = [];
-let numberOfAttempts = 0;
-let highScore = 0;
-let highScoreAttempts = 0;
+const { fork } = require("child_process");
+const { generateRandomUniqueNumbers, simpleSort } = require("./utils.js");
 
-const simpleSort = (a, b) => a - b;
+let minimumCorrect = 7;
 
-function init() {
-    numberOfAttempts = 0;
-    highScore = 0;
-    highScoreAttempts = 0;
-}
-
-function generateRandomUniqueNumbers(min = 1, max = 40) {
-    const drawnNumbersSet = new Set();
-    do {
-        drawnNumbersSet.add(Math.floor(Math.random() * max + min));
-    } while (drawnNumbersSet.size !== 7);
-    return Array.from(drawnNumbersSet);
-}
-
-function play(myNumbers, minimumCorrect = 7) {
-    let correctNumbers = [];
-    let correctNumbersLength = correctNumbers.length;
-
-    while (correctNumbersLength < minimumCorrect) {
-        correctNumbers = [];
-        drawnNumbers = generateRandomUniqueNumbers();
-
-        myNumbers.forEach((num) => {
-            if (drawnNumbers.includes(num) && !correctNumbers.includes(num))
-                correctNumbers.push(num);
-        });
-
-        correctNumbersLength = correctNumbers.length;
-        numberOfAttempts++;
-        if (correctNumbersLength > highScore) highScore = correctNumbersLength;
-    }
-    return correctNumbers;
+function init(minCorrect = 7) {
+    minimumCorrect = minCorrect;
 }
 
 function validateArgs(args) {
-    if (args[0] === "random") return generateRandomUniqueNumbers();
+    if (args[0].toLowerCase() === "random") return generateRandomUniqueNumbers();
 
     const nums = new Set(args); // Set allows only unique values.
     if (nums.size !== 7) throw `expected 7 different numbers, got ${nums.size}`;
@@ -52,7 +20,7 @@ function validateArgs(args) {
     const arr = Array.from(nums);
 
     for (let i = 0; i < arr.length; i++) {
-        let num = parseInt(arr[i]);
+        const num = parseInt(arr[i]);
 
         if (isNaN(num) || num < 1 || num > 40 || validNumbers.includes(num))
             throw `invalid argument: ${arr[i]}. Make sure all arguments are different numbers between 1 and 40, inclusive.`;
@@ -72,7 +40,51 @@ function validation(args) {
     return numbers;
 }
 
-function main() {
+function play(payload) {
+    const frames = ["🌑 ", "🌒 ", "🌓 ", "🌔 ", "🌕 ", "🌖 ", "🌗 ", "🌘 "];
+    let x = 0;
+    process.stdout.write("\x1b[?25l"); // remove cursor
+
+    // play loader animation while waiting for jackpot
+    const loader = setInterval(() => {
+        process.stdout.write("\r" + frames[x++]);
+        x %= frames.length;
+    }, 80);
+
+    function resolve(data) {
+        process.stdout.write("\r\x1b[?25h"); // restore cursor
+        clearInterval(loader);
+        return data;
+    }    
+
+    return new Promise(res => {
+        const childProcess = fork("./machine.js");
+        childProcess.send(payload);
+    
+        childProcess.on("message", data => {
+            res(resolve(data));
+        });
+    });
+}
+
+function logResults(data) {
+    console.log("--- Results ---");
+    for (numsCorrect in data) {
+        if (numsCorrect === 'misc') continue;
+        console.log('Tier:', numsCorrect, 'correct');
+        console.log('Attempt number:', data[numsCorrect].attemptNum);
+        console.log('Time in years:', data[numsCorrect].numYears);
+        console.log('First drawn numbers:', data[numsCorrect].drawnNumbers);
+        console.log('First correct number(s):', data[numsCorrect].correctNumbers);
+        console.log('Total hits:', data[numsCorrect].ding);
+        console.log();
+    }
+    console.log("--- Miscellaneous information ---");
+    console.log('No hits:', data.misc.numOfNoHits);
+    console.log('Total attempts:', data.misc.numberOfAttempts);
+}
+
+async function main() {
     init();
 
     const args = process.argv.slice(2, 9); // Slice to only relevant arguments
@@ -80,22 +92,13 @@ function main() {
     if (!validatedNumbers) return;
 
     validatedNumbers.sort(simpleSort);
-    console.log("my numbers:", validatedNumbers);
+    console.log("my numbers:", validatedNumbers, "\n");
 
-    const correctNumbers = play(validatedNumbers);
-    correctNumbers.sort(simpleSort);
-
-    drawnNumbers.sort(simpleSort);
-    console.log("drawn numbers:", drawnNumbers);
-    console.log("correct numbers:", correctNumbers);
-    console.log(`You got ${correctNumbers.length} correct!`);
-    console.log(
-        `It only took ${numberOfAttempts} attempts! Or ${parseFloat(
-            numberOfAttempts / 52
-        ).toFixed(2)} years!`
-    );
+    const timeline = await play({ numbers: validatedNumbers, minimumCorrect });
+    logResults(timeline);
 }
 
-main();
-
-console.timeEnd("runtime");
+main().then(() => {
+    console.log("\ndone")
+    console.timeEnd("runtime");
+});
