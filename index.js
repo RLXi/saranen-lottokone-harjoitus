@@ -11,7 +11,14 @@ function init(minCorrect = 7) {
 }
 
 function validateArgs(args) {
-    if (args[0].toLowerCase() === "random") return generateRandomUniqueNumbers();
+    if (args[0].toLowerCase() === "random" && !isNaN(args[1])) {
+        const rows = []
+        for (let i = 0; i < parseInt(args[1]); i++) {
+            rows.push(generateRandomUniqueNumbers());
+        }
+        return rows;
+    }
+    if (args[0].toLowerCase() === "random") return [generateRandomUniqueNumbers()];
 
     const nums = new Set(args); // Set allows only unique values.
     if (nums.size !== 7) throw `expected 7 different numbers, got ${nums.size}`;
@@ -91,7 +98,7 @@ async function main() {
     const validatedNumbers = validation(args);
     if (!validatedNumbers) return;
 
-    validatedNumbers.sort(simpleSort);
+    //validatedNumbers.sort(simpleSort);
     console.log("my numbers:", validatedNumbers, "\n");
 
     const timeline = await play({ numbers: validatedNumbers, minimumCorrect });
