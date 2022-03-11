@@ -8,6 +8,10 @@ If you want 7 random numbers, run
 
 `node . random`
 
+You can also generate multiple random rows
+
+`node . random 10`
+
 If you want to choose your own numbers, run
 
 `node . $1 $2 $3 $4 $5 $6 $7`
